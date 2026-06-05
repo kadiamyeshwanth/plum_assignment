@@ -10,11 +10,11 @@
 
 | Deliverable | Link | Access |
 |-------------|------|--------|
-| **GitHub Repository** | [FILL IN] | Public |
-| **Deployed Application** | [FILL IN] | Public URL |
+| **GitHub Repository** | https://github.com/kadiamyeshwanth/plum_assignment | Public |
+| **Deployed Application** | https://kadiamyeshwanth.github.io/plum_assignment/ | Public URL |
 | **Source Code (Google Drive)** | [FILL IN] | Anyone with link |
 | **Demo Video (YouTube)** | [FILL IN] | Public / Unlisted |
-| **API Documentation** | [FILL IN — deployed /docs URL] | Public |
+| **API Documentation** | https://plumassignment-production.up.railway.app/docs | Public |
 
 ---
 
