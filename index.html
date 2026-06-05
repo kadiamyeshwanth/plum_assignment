@@ -1,0 +1,1058 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plum OPD — Claim Adjudication Portal</title>
+  <meta name="description" content="AI-powered OPD insurance claim adjudication system by Plum. Submit, track, and review medical claims instantly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===================== DESIGN TOKENS ===================== */
+    :root {
+      --plum:        #6C47FF;
+      --plum-light:  #8B6BFF;
+      --plum-dim:    rgba(108, 71, 255, 0.12);
+      --plum-glow:   rgba(108, 71, 255, 0.35);
+      --bg:          #0D0F14;
+      --surface:     #13161E;
+      --surface2:    #1A1E2A;
+      --border:      rgba(255,255,255,0.07);
+      --border-focus:rgba(108,71,255,0.6);
+      --text:        #E8EAF0;
+      --muted:       #6B7280;
+      --green:       #22C55E;
+      --green-dim:   rgba(34,197,94,0.12);
+      --red:         #EF4444;
+      --red-dim:     rgba(239,68,68,0.12);
+      --yellow:      #F59E0B;
+      --yellow-dim:  rgba(245,158,11,0.12);
+      --blue:        #3B82F6;
+      --blue-dim:    rgba(59,130,246,0.12);
+      --radius:      12px;
+      --radius-lg:   18px;
+      --shadow:      0 4px 24px rgba(0,0,0,0.4);
+    }
+
+    /* ===================== RESET & BASE ===================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ===================== BACKGROUND ===================== */
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(108,71,255,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(59,130,246,0.05) 0%, transparent 60%),
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    /* ===================== LAYOUT ===================== */
+    .app { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* ===================== HEADER ===================== */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      background: rgba(13,15,20,0.8);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 36px; height: 36px; background: var(--plum);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 18px; box-shadow: 0 0 20px var(--plum-glow);
+    }
+    .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+    .logo-text span { color: var(--plum); }
+    .header-badge {
+      font-size: 11px; font-weight: 600; color: var(--green);
+      background: var(--green-dim); padding: 4px 10px; border-radius: 20px;
+      border: 1px solid rgba(34,197,94,0.25);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .header-badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green); animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* ===================== MAIN CONTENT ===================== */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 28px;
+      padding: 36px 40px;
+      max-width: 1300px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ===================== CARDS ===================== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+    .card-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px; padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--plum-dim); border: 1px solid rgba(108,71,255,0.25);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .card-title { font-size: 16px; font-weight: 600; }
+    .card-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ===================== STEP INDICATORS ===================== */
+    .steps {
+      display: flex; gap: 0; margin-bottom: 32px;
+      background: var(--surface2); border-radius: 10px; padding: 4px;
+    }
+    .step-btn {
+      flex: 1; padding: 9px 8px; border: none; background: transparent;
+      color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer;
+      border-radius: 7px; transition: all 0.2s; font-family: inherit;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    .step-btn.active {
+      background: var(--plum); color: #fff;
+      box-shadow: 0 0 16px var(--plum-glow);
+    }
+    .step-btn.done { color: var(--green); }
+    .step-num {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700;
+    }
+    .step-btn.active .step-num { background: rgba(255,255,255,0.25); }
+    .step-btn.done .step-num { background: var(--green-dim); color: var(--green); }
+
+    /* ===================== FORM ===================== */
+    .form-panel { display: none; }
+    .form-panel.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-group label {
+      font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 11px 14px; border-radius: var(--radius);
+      font-family: inherit; font-size: 14px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(108,71,255,0.15);
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--muted); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group select option { background: var(--surface2); }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface2); border: 1px solid var(--border);
+      padding: 12px 14px; border-radius: var(--radius); cursor: pointer;
+    }
+    .checkbox-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--plum); }
+    .checkbox-row label { font-size: 13px; cursor: pointer; }
+
+    /* ===================== BILL ITEMS ===================== */
+    .bill-items { display: flex; flex-direction: column; gap: 10px; }
+    .bill-item {
+      display: grid; grid-template-columns: 1fr 120px 36px; gap: 10px; align-items: center;
+      animation: fadeIn 0.2s ease;
+    }
+    .bill-item input {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 10px 12px; border-radius: 8px;
+      font-family: inherit; font-size: 13px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .bill-item input:focus { border-color: var(--border-focus); }
+    .remove-btn {
+      width: 36px; height: 36px; border: 1px solid var(--border);
+      background: transparent; color: var(--muted); border-radius: 8px;
+      cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .remove-btn:hover { background: var(--red-dim); color: var(--red); border-color: rgba(239,68,68,0.3); }
+    .add-item-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: transparent; border: 1px dashed var(--border);
+      color: var(--muted); padding: 10px 14px; border-radius: 8px;
+      cursor: pointer; font-size: 13px; font-family: inherit;
+      transition: all 0.2s; margin-top: 4px;
+    }
+    .add-item-btn:hover { border-color: var(--plum); color: var(--plum); background: var(--plum-dim); }
+
+    /* ===================== MEDICINE TAGS ===================== */
+    .tag-input-wrapper {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 8px; display: flex; flex-wrap: wrap; gap: 6px;
+      min-height: 46px; cursor: text;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .tag-input-wrapper:focus-within {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(108,71,255,0.15);
+    }
+    .tag {
+      background: var(--plum-dim); color: var(--plum-light);
+      border: 1px solid rgba(108,71,255,0.25);
+      padding: 3px 10px 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .tag button {
+      background: none; border: none; color: var(--plum-light);
+      cursor: pointer; font-size: 14px; line-height: 1; padding: 0;
+    }
+    .tag-input {
+      border: none !important; background: transparent !important;
+      outline: none; font-family: inherit; font-size: 13px; color: var(--text);
+      padding: 2px 4px !important; min-width: 120px; flex: 1;
+    }
+
+    /* ===================== NAV BUTTONS ===================== */
+    .nav-btns { display: flex; gap: 12px; margin-top: 8px; }
+    .btn {
+      padding: 11px 24px; border-radius: var(--radius); border: none;
+      font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+    }
+    .btn-primary {
+      background: var(--plum); color: #fff;
+      box-shadow: 0 4px 16px var(--plum-glow);
+    }
+    .btn-primary:hover { background: var(--plum-light); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--surface); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; }
+    .btn-full { width: 100%; justify-content: center; }
+
+    /* ===================== TEST CASES ===================== */
+    .presets-label {
+      font-size: 11px; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
+    }
+    .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .preset-btn {
+      padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--muted);
+      font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: all 0.2s;
+    }
+    .preset-btn:hover { border-color: var(--plum); color: var(--plum); background: var(--plum-dim); }
+
+    /* ===================== RESULT PANEL ===================== */
+    #resultSection { display: none; }
+    #resultSection.visible { display: block; animation: fadeIn 0.4s ease; }
+
+    .decision-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 18px; border-radius: 30px; font-size: 15px; font-weight: 700;
+      letter-spacing: 0.5px; margin-bottom: 20px;
+    }
+    .decision-APPROVED  { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(34,197,94,0.3); }
+    .decision-REJECTED  { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(239,68,68,0.3); }
+    .decision-PARTIAL   { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+    .decision-MANUAL_REVIEW { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+
+    .result-amount {
+      font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px;
+    }
+    .result-amount-label { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+
+    .confidence-bar-wrap { margin-bottom: 20px; }
+    .confidence-label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: var(--muted); margin-bottom: 6px;
+    }
+    .confidence-bar {
+      height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden;
+    }
+    .confidence-fill {
+      height: 100%; background: linear-gradient(90deg, var(--plum), var(--plum-light));
+      border-radius: 3px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .result-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 10px 0; border-bottom: 1px solid var(--border); gap: 16px;
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-key { font-size: 12px; color: var(--muted); font-weight: 500; flex-shrink: 0; }
+    .result-val { font-size: 13px; font-weight: 500; text-align: right; }
+
+    .tag-pill {
+      display: inline-flex; background: var(--red-dim); color: var(--red);
+      border: 1px solid rgba(239,68,68,0.25);
+      padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+      margin: 2px;
+    }
+    .tag-pill.flag { background: var(--yellow-dim); color: var(--yellow); border-color: rgba(245,158,11,0.25); }
+
+    .next-steps-box {
+      background: var(--blue-dim); border: 1px solid rgba(59,130,246,0.2);
+      border-radius: var(--radius); padding: 12px 14px; margin-top: 16px;
+      font-size: 13px; color: var(--blue); display: flex; gap: 8px; align-items: flex-start;
+    }
+    .next-steps-box::before { content: 'ℹ️'; flex-shrink: 0; }
+
+    /* ===================== LOADING SPINNER ===================== */
+    .spinner {
+      width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===================== CLAIMS HISTORY ===================== */
+    .history-panel { display: flex; flex-direction: column; height: fit-content; }
+    .history-list { display: flex; flex-direction: column; gap: 10px; max-height: 600px; overflow-y: auto; }
+    .history-list::-webkit-scrollbar { width: 4px; }
+    .history-list::-webkit-scrollbar-track { background: transparent; }
+    .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .history-empty {
+      text-align: center; color: var(--muted); font-size: 13px; padding: 32px 16px;
+    }
+    .history-item {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px; cursor: pointer;
+      transition: all 0.2s; border-left: 3px solid transparent;
+    }
+    .history-item:hover { border-color: var(--plum); background: var(--surface); }
+    .history-item.APPROVED { border-left-color: var(--green); }
+    .history-item.REJECTED { border-left-color: var(--red); }
+    .history-item.PARTIAL  { border-left-color: var(--yellow); }
+    .history-item.MANUAL_REVIEW { border-left-color: var(--blue); }
+    .history-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .history-id { font-size: 13px; font-weight: 600; }
+    .history-dec {
+      font-size: 10px; font-weight: 700; padding: 2px 8px;
+      border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .dec-APPROVED  { background: var(--green-dim);  color: var(--green); }
+    .dec-REJECTED  { background: var(--red-dim);    color: var(--red); }
+    .dec-PARTIAL   { background: var(--yellow-dim); color: var(--yellow); }
+    .dec-MANUAL_REVIEW { background: var(--blue-dim); color: var(--blue); }
+    .history-meta { font-size: 11px; color: var(--muted); }
+
+    /* ===================== STATS BAR ===================== */
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px; text-align: center;
+    }
+    .stat-num { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ===================== FOOTER ===================== */
+    footer {
+      text-align: center; padding: 20px 40px;
+      border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--muted);
+    }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; padding: 20px; }
+      header { padding: 16px 20px; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🌸</div>
+      <div>
+        <div class="logo-text">Plum <span>OPD</span></div>
+      </div>
+    </div>
+    <div class="header-badge">API Connected</div>
+  </header>
+
+  <!-- STATS -->
+  <div style="padding: 24px 40px 0; max-width: 1300px; margin: 0 auto; width: 100%;">
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-num" id="statTotal" style="color:var(--text)">0</div>
+        <div class="stat-label">Total Claims</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statApproved" style="color:var(--green)">0</div>
+        <div class="stat-label">Approved</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statRejected" style="color:var(--red)">0</div>
+        <div class="stat-label">Rejected</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statReview" style="color:var(--yellow)">0</div>
+        <div class="stat-label">Pending Review</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main>
+    <!-- LEFT: CLAIM FORM -->
+    <div>
+      <!-- Preset test cases -->
+      <div class="presets-label">⚡ Quick Test Scenarios</div>
+      <div class="presets" id="presets"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">📋</div>
+          <div>
+            <div class="card-title">New Claim Submission</div>
+            <div class="card-sub">Fill in claim details across 3 steps</div>
+          </div>
+        </div>
+
+        <!-- Step indicator -->
+        <div class="steps">
+          <button class="step-btn active" data-step="1" id="stepBtn1" onclick="goToStep(1)">
+            <div class="step-num">1</div> Claim Info
+          </button>
+          <button class="step-btn" data-step="2" id="stepBtn2" onclick="goToStep(2)">
+            <div class="step-num">2</div> Prescription
+          </button>
+          <button class="step-btn" data-step="3" id="stepBtn3" onclick="goToStep(3)">
+            <div class="step-num">3</div> Bill Items
+          </button>
+        </div>
+
+        <!-- STEP 1: Claim Info -->
+        <div class="form-panel active" id="panel1">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Case ID</label>
+              <input type="text" id="caseId" value="CLM_001" placeholder="CLM_XXXXX" />
+            </div>
+            <div class="form-group">
+              <label>Claim Amount (₹)</label>
+              <input type="number" id="claimAmount" value="1500" min="1" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Member ID</label>
+              <input type="text" id="memberId" placeholder="EMP001" />
+            </div>
+            <div class="form-group">
+              <label>Member Name</label>
+              <input type="text" id="memberName" placeholder="Rajesh Kumar" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Treatment Date</label>
+              <input type="date" id="treatmentDate" value="2024-11-01" />
+            </div>
+            <div class="form-group">
+              <label>Member Join Date (optional)</label>
+              <input type="date" id="joinDate" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Hospital</label>
+              <select id="hospital">
+                <option value="">Non-network / Other</option>
+                <option value="Apollo Hospitals">Apollo Hospitals (Network)</option>
+                <option value="Fortis Healthcare">Fortis Healthcare (Network)</option>
+                <option value="Max Healthcare">Max Healthcare (Network)</option>
+                <option value="Manipal Hospitals">Manipal Hospitals (Network)</option>
+                <option value="Narayana Health">Narayana Health (Network)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Previous Claims Same Day</label>
+              <input type="number" id="prevClaims" value="0" min="0" />
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="checkbox-row">
+              <input type="checkbox" id="cashless" />
+              <label for="cashless">Cashless request (network hospitals only)</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="checkbox-row">
+              <input type="checkbox" id="preAuth" />
+              <label for="preAuth">Pre-authorization obtained (for MRI / CT Scan)</label>
+            </div>
+          </div>
+          <div class="nav-btns">
+            <button class="btn btn-primary" onclick="goToStep(2)">Next: Prescription →</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Prescription -->
+        <div class="form-panel" id="panel2">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Doctor Name</label>
+              <input type="text" id="doctorName" placeholder="Dr. Sharma" />
+            </div>
+            <div class="form-group">
+              <label>Doctor Registration No.</label>
+              <input type="text" id="doctorReg" placeholder="KA/45678/2015" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Diagnosis</label>
+            <input type="text" id="diagnosis" placeholder="Viral fever, Type 2 Diabetes, etc." />
+          </div>
+          <div class="form-group">
+            <label>Medicines Prescribed <span style="color:var(--muted); font-weight:400">(press Enter to add)</span></label>
+            <div class="tag-input-wrapper" id="medTagWrapper" onclick="document.getElementById('medInput').focus()">
+              <input type="text" id="medInput" class="tag-input" placeholder="e.g. Paracetamol 650mg" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Tests Prescribed <span style="color:var(--muted); font-weight:400">(press Enter to add)</span></label>
+            <div class="tag-input-wrapper" id="testTagWrapper" onclick="document.getElementById('testInput').focus()">
+              <input type="text" id="testInput" class="tag-input" placeholder="e.g. CBC, MRI Spine" />
+            </div>
+          </div>
+          <div class="nav-btns">
+            <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+            <button class="btn btn-primary" onclick="goToStep(3)">Next: Bill Items →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Bill Items -->
+        <div class="form-panel" id="panel3">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="font-size:13px; color:var(--muted)">Add itemised bill entries</div>
+            <div style="font-size:13px; font-weight:600;" id="billTotal">Total: ₹0</div>
+          </div>
+          <div class="bill-items" id="billItems"></div>
+          <button class="add-item-btn" onclick="addBillItem()">+ Add Item</button>
+
+          <!-- Result section inline -->
+          <div id="resultSection" style="margin-top:24px; padding-top:24px; border-top: 1px solid var(--border);">
+            <div id="decisionBadge"></div>
+            <div class="result-amount" id="resultAmount"></div>
+            <div class="result-amount-label">Approved Amount</div>
+            <div class="confidence-bar-wrap">
+              <div class="confidence-label">
+                <span>AI Confidence Score</span>
+                <span id="confVal"></span>
+              </div>
+              <div class="confidence-bar"><div class="confidence-fill" id="confFill" style="width:0%"></div></div>
+            </div>
+            <div id="resultDetails"></div>
+            <div class="next-steps-box" id="nextStepsBox" style="display:none;"></div>
+          </div>
+
+          <div class="nav-btns" style="margin-top: 20px;">
+            <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+            <button class="btn btn-primary btn-full" id="submitBtn" onclick="submitClaim()">
+              🚀 Adjudicate Claim
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: CLAIMS HISTORY -->
+    <div class="history-panel card" style="padding: 24px;">
+      <div class="card-header" style="margin-bottom:16px;">
+        <div class="card-icon">📊</div>
+        <div>
+          <div class="card-title">Claims History</div>
+          <div class="card-sub">Session results</div>
+        </div>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty">No claims yet.<br>Submit your first claim →</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Plum OPD Adjudication Portal &nbsp;·&nbsp; MVP v1.0 &nbsp;·&nbsp;
+    Backend: <code>http://localhost:8000</code> &nbsp;·&nbsp;
+    <a href="http://localhost:8000/docs" target="_blank" style="color:var(--plum)">API Docs ↗</a>
+  </footer>
+</div>
+
+<script>
+/* ================================================================
+   STATE
+================================================================ */
+const API = 'http://localhost:8000';
+let currentStep = 1;
+let medicines = [];
+let tests = [];
+let billItems = []; // [{name, amount}]
+let sessionClaims = [];
+let stats = { total: 0, approved: 0, rejected: 0, review: 0 };
+
+/* ================================================================
+   TEST CASE PRESETS
+================================================================ */
+const PRESETS = [
+  {
+    label: 'TC001 ✅ Approved', id:'CLM_TC001',
+    data: {
+      case_id:'CLM_TC001', member_id:'EMP001', member_name:'Rajesh Kumar',
+      claim_amount: 1500, treatment_date:'2024-11-01',
+      hospital:'', cashless_request:false, previous_claims_same_day:0, pre_auth_obtained:false,
+      prescription:{ doctor_name:'Dr. Sharma', doctor_reg:'KA/45678/2015', diagnosis:'Viral fever',
+        medicines:['Paracetamol 650mg','Vitamin C'], tests:[] },
+      bill:[{name:'consultation_fee', amt:1000},{name:'diagnostic_tests', amt:500}]
+    }
+  },
+  {
+    label: 'TC002 🟡 Partial', id:'CLM_TC002',
+    data: {
+      case_id:'CLM_TC002', member_id:'EMP002', member_name:'Priya Singh',
+      claim_amount:12000, treatment_date:'2024-10-15',
+      hospital:'', cashless_request:false, previous_claims_same_day:0, pre_auth_obtained:false,
+      prescription:{ doctor_name:'Dr. Patel', doctor_reg:'MH/23456/2018',
+        diagnosis:'Tooth decay requiring root canal', medicines:[], tests:[] },
+      bill:[{name:'root_canal', amt:8000},{name:'teeth_whitening', amt:4000}]
+    }
+  },
+  {
+    label: 'TC003 ❌ Limit', id:'CLM_TC003',
+    data: {
+      case_id:'CLM_TC003', member_id:'EMP003', member_name:'Amit Verma',
+      claim_amount:7500, treatment_date:'2024-10-20',
+      hospital:'', cashless_request:false, previous_claims_same_day:0, pre_auth_obtained:false,
+      prescription:{ doctor_name:'Dr. Gupta', doctor_reg:'DL/34567/2016',
+        diagnosis:'Gastroenteritis', medicines:['Antibiotics','Probiotics'], tests:[] },
+      bill:[{name:'consultation_fee', amt:2000},{name:'medicines', amt:5500}]
+    }
+  },
+  {
+    label: 'TC004 ❌ No Rx', id:'CLM_TC004',
+    data: {
+      case_id:'CLM_TC004', member_id:'EMP004', member_name:'Sneha Reddy',
+      claim_amount:2000, treatment_date:'2024-10-25',
+      hospital:'', cashless_request:false, previous_claims_same_day:0, pre_auth_obtained:false,
+      prescription:null,
+      bill:[{name:'consultation_fee', amt:1500},{name:'medicines', amt:500}]
+    }
+  },
+  {
+    label: 'TC005 ❌ Waiting', id:'CLM_TC005',
+    data: {
+      case_id:'CLM_TC005', member_id:'EMP005', member_name:'Vikram Joshi',
+      claim_amount:3000, treatment_date:'2024-10-15', member_join_date:'2024-09-01',
+      hospital:'', cashless_request:false, previous_claims_same_day:0, pre_auth_obtained:false,
+      prescription:{ doctor_name:'Dr. Mehta', doctor_reg:'GJ/56789/2014',
+        diagnosis:'Type 2 Diabetes', medicines:['Metformin','Glimepiride'], tests:[] },
+      bill:[{name:'consultation_fee', amt:1000},{name:'medicines', amt:2000}]
+    }
+  },
+  {
+    label: 'TC007 ❌ Pre-auth', id:'CLM_TC007',
+    data: {
+      case_id:'CLM_TC007', member_id:'EMP007', member_name:'Suresh Patil',
+      claim_amount:15000, treatment_date:'2024-11-02',
+      hospital:'', cashless_request:false, previous_claims_same_day:0, pre_auth_obtained:false,
+      prescription:{ doctor_name:'Dr. Rao', doctor_reg:'AP/67890/2017',
+        diagnosis:'Suspected lumbar disc herniation', medicines:[], tests:['MRI Lumbar Spine'] },
+      bill:[{name:'mri_scan', amt:15000}]
+    }
+  },
+  {
+    label: 'TC008 🔵 Manual', id:'CLM_TC008',
+    data: {
+      case_id:'CLM_TC008', member_id:'EMP008', member_name:'Ravi Menon',
+      claim_amount:4800, treatment_date:'2024-10-30',
+      hospital:'', cashless_request:false, previous_claims_same_day:3, pre_auth_obtained:false,
+      prescription:{ doctor_name:'Dr. Khan', doctor_reg:'UP/45678/2016',
+        diagnosis:'Migraine', medicines:['Sumatriptan','Propranolol'], tests:[] },
+      bill:[{name:'consultation_fee', amt:2000},{name:'medicines', amt:2800}]
+    }
+  },
+  {
+    label: 'TC010 💳 Cashless', id:'CLM_TC010',
+    data: {
+      case_id:'CLM_TC010', member_id:'EMP010', member_name:'Deepak Shah',
+      claim_amount:4500, treatment_date:'2024-11-03',
+      hospital:'Apollo Hospitals', cashless_request:true, previous_claims_same_day:0, pre_auth_obtained:false,
+      prescription:{ doctor_name:'Dr. Iyer', doctor_reg:'TN/56789/2013',
+        diagnosis:'Acute bronchitis', medicines:['Antibiotics','Bronchodilators'], tests:[] },
+      bill:[{name:'consultation_fee', amt:1500},{name:'medicines', amt:3000}]
+    }
+  },
+];
+
+function buildPresets() {
+  const wrap = document.getElementById('presets');
+  PRESETS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.textContent = p.label;
+    btn.onclick = () => loadPreset(p.data);
+    wrap.appendChild(btn);
+  });
+}
+
+function loadPreset(d) {
+  // Step 1
+  document.getElementById('caseId').value = d.case_id || '';
+  document.getElementById('claimAmount').value = d.claim_amount || '';
+  document.getElementById('memberId').value = d.member_id || '';
+  document.getElementById('memberName').value = d.member_name || '';
+  document.getElementById('treatmentDate').value = d.treatment_date || '';
+  document.getElementById('joinDate').value = d.member_join_date || '';
+  const hospEl = document.getElementById('hospital');
+  hospEl.value = d.hospital || '';
+  document.getElementById('cashless').checked = !!d.cashless_request;
+  document.getElementById('preAuth').checked = !!d.pre_auth_obtained;
+  document.getElementById('prevClaims').value = d.previous_claims_same_day || 0;
+
+  // Step 2
+  const rx = d.prescription;
+  document.getElementById('doctorName').value = rx ? rx.doctor_name || '' : '';
+  document.getElementById('doctorReg').value = rx ? rx.doctor_reg || '' : '';
+  document.getElementById('diagnosis').value = rx ? rx.diagnosis || '' : '';
+  medicines = rx ? [...(rx.medicines || [])] : [];
+  tests = rx ? [...(rx.tests || [])] : [];
+  renderTags('medTagWrapper', 'medInput', medicines);
+  renderTags('testTagWrapper', 'testInput', tests);
+
+  // Step 3
+  billItems = d.bill ? d.bill.map(b => ({name: b.name, amount: b.amt})) : [];
+  renderBillItems();
+  goToStep(1);
+}
+
+/* ================================================================
+   STEP NAVIGATION
+================================================================ */
+function goToStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('panel'+i).classList.toggle('active', i === n);
+    const btn = document.getElementById('stepBtn'+i);
+    btn.classList.remove('active','done');
+    if (i === n) btn.classList.add('active');
+    else if (i < n) btn.classList.add('done');
+  });
+  currentStep = n;
+}
+
+/* ================================================================
+   TAG INPUT (Medicines & Tests)
+================================================================ */
+function renderTags(wrapperId, inputId, arr) {
+  const wrapper = document.getElementById(wrapperId);
+  const input = document.getElementById(inputId);
+  // Remove existing tags (keep input)
+  Array.from(wrapper.children).forEach(c => { if (!c.classList.contains('tag-input')) c.remove(); });
+  arr.forEach((item, idx) => {
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.innerHTML = `${item} <button onclick="removeTag('${wrapperId}','${inputId}',${idx})" type="button">×</button>`;
+    wrapper.insertBefore(tag, input);
+  });
+}
+
+function removeTag(wrapperId, inputId, idx) {
+  const arr = wrapperId.includes('med') ? medicines : tests;
+  arr.splice(idx, 1);
+  renderTags(wrapperId, inputId, arr);
+}
+
+function setupTagInput(inputId, wrapperId, arr) {
+  const input = document.getElementById(inputId);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const val = input.value.trim().replace(/,$/, '');
+      if (val) { arr.push(val); input.value = ''; renderTags(wrapperId, inputId, arr); }
+    }
+    if (e.key === 'Backspace' && !input.value && arr.length) {
+      arr.pop(); renderTags(wrapperId, inputId, arr);
+    }
+  });
+}
+
+/* ================================================================
+   BILL ITEMS
+================================================================ */
+function addBillItem(name='', amount='') {
+  billItems.push({name, amount});
+  renderBillItems();
+}
+
+function renderBillItems() {
+  const wrap = document.getElementById('billItems');
+  wrap.innerHTML = '';
+  billItems.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'bill-item';
+    row.innerHTML = `
+      <input type="text" placeholder="Item name (e.g. consultation_fee)" value="${item.name}"
+        oninput="billItems[${i}].name=this.value; updateBillTotal()" />
+      <input type="number" placeholder="₹ Amount" value="${item.amount}"
+        oninput="billItems[${i}].amount=Number(this.value)||''; updateBillTotal()" />
+      <button class="remove-btn" onclick="removeBillItem(${i})">×</button>
+    `;
+    wrap.appendChild(row);
+  });
+  if (billItems.length === 0) addBillItem();
+  updateBillTotal();
+}
+
+function removeBillItem(i) {
+  billItems.splice(i,1);
+  renderBillItems();
+}
+
+function updateBillTotal() {
+  const total = billItems.reduce((s,b) => s + (Number(b.amount)||0), 0);
+  document.getElementById('billTotal').textContent = `Total: ₹${total.toLocaleString('en-IN')}`;
+}
+
+/* ================================================================
+   SUBMIT
+================================================================ */
+async function submitClaim() {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Processing…';
+
+  const prescription = {
+    doctor_name: document.getElementById('doctorName').value.trim() || undefined,
+    doctor_reg: document.getElementById('doctorReg').value.trim() || undefined,
+    diagnosis: document.getElementById('diagnosis').value.trim() || undefined,
+    medicines_prescribed: medicines.length ? [...medicines] : undefined,
+    tests_prescribed: tests.length ? [...tests] : undefined,
+  };
+  const hasRx = Object.values(prescription).some(v => v !== undefined);
+
+  const bill = {};
+  billItems.forEach(b => {
+    if (b.name && b.amount !== '') bill[b.name] = Number(b.amount) || 0;
+  });
+
+  const payload = {
+    case_id: document.getElementById('caseId').value.trim() || 'CLM_DEMO',
+    member_id: document.getElementById('memberId').value.trim() || undefined,
+    member_name: document.getElementById('memberName').value.trim() || undefined,
+    claim_amount: Number(document.getElementById('claimAmount').value) || 0,
+    treatment_date: document.getElementById('treatmentDate').value,
+    member_join_date: document.getElementById('joinDate').value || undefined,
+    hospital: document.getElementById('hospital').value || undefined,
+    cashless_request: document.getElementById('cashless').checked,
+    pre_auth_obtained: document.getElementById('preAuth').checked,
+    previous_claims_same_day: Number(document.getElementById('prevClaims').value) || 0,
+    documents: {
+      ...(hasRx ? { prescription } : {}),
+      ...(Object.keys(bill).length ? { bill } : {}),
+    },
+  };
+
+  try {
+    const resp = await fetch(`${API}/adjudicate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.detail || `HTTP ${resp.status}`);
+    }
+    const result = await resp.json();
+    showResult(result);
+    addToHistory(result, payload);
+    updateStats(result.decision);
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Adjudicate Claim';
+  }
+}
+
+/* ================================================================
+   RENDER RESULT
+================================================================ */
+function showResult(r) {
+  const section = document.getElementById('resultSection');
+  section.classList.add('visible');
+  section.style.display = 'block';
+
+  // Decision badge
+  document.getElementById('decisionBadge').innerHTML =
+    `<div class="decision-badge decision-${r.decision}">${decisionIcon(r.decision)} ${r.decision.replace('_',' ')}</div>`;
+
+  // Amount
+  document.getElementById('resultAmount').textContent =
+    r.approved_amount > 0 ? `₹${Number(r.approved_amount).toLocaleString('en-IN')}` : '—';
+
+  // Confidence
+  const pct = Math.round((r.confidence_score || 0) * 100);
+  document.getElementById('confVal').textContent = `${pct}%`;
+  setTimeout(() => { document.getElementById('confFill').style.width = pct + '%'; }, 50);
+
+  // Details
+  let det = '';
+  if (r.claim_id) det += row('Claim ID', `<code>${r.claim_id}</code>`);
+  if (r.notes) det += row('Notes', r.notes);
+  if (r.rejection_reasons?.length)
+    det += row('Rejection Reasons', r.rejection_reasons.map(rr => `<span class="tag-pill">${rr}</span>`).join(''));
+  if (r.rejected_items?.length)
+    det += row('Rejected Items', r.rejected_items.map(ri => `<span class="tag-pill">${ri}</span>`).join(''));
+  if (r.flags?.length)
+    det += row('Flags', r.flags.map(f => `<span class="tag-pill flag">${f}</span>`).join(''));
+  if (r.deductions?.copay) det += row('Co-pay Deducted', `₹${r.deductions.copay.toLocaleString('en-IN')}`);
+  if (r.network_discount) det += row('Network Discount', `₹${Number(r.network_discount).toLocaleString('en-IN')}`);
+  document.getElementById('resultDetails').innerHTML = det;
+
+  // Next steps
+  const nsBox = document.getElementById('nextStepsBox');
+  if (r.next_steps) {
+    nsBox.style.display = 'flex';
+    nsBox.textContent = r.next_steps;
+    nsBox.prepend(Object.assign(document.createElement('span'), {textContent: 'ℹ️'}));
+  } else {
+    nsBox.style.display = 'none';
+  }
+
+  section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showError(msg) {
+  const section = document.getElementById('resultSection');
+  section.classList.add('visible');
+  section.style.display = 'block';
+  document.getElementById('decisionBadge').innerHTML =
+    `<div class="decision-badge decision-REJECTED">⚠️ Error</div>`;
+  document.getElementById('resultAmount').textContent = '—';
+  document.getElementById('confFill').style.width = '0%';
+  document.getElementById('confVal').textContent = '—';
+  document.getElementById('resultDetails').innerHTML = row('Error', msg);
+  document.getElementById('nextStepsBox').style.display = 'none';
+  const nsBox = document.getElementById('nextStepsBox');
+  nsBox.style.display = 'flex';
+  nsBox.textContent = 'Make sure the backend is running: cd mvp_backend && python simple_server.py';
+}
+
+function row(key, val) {
+  return `<div class="result-row"><span class="result-key">${key}</span><span class="result-val">${val}</span></div>`;
+}
+
+function decisionIcon(d) {
+  return { APPROVED:'✅', REJECTED:'❌', PARTIAL:'🟡', MANUAL_REVIEW:'🔵' }[d] || '❓';
+}
+
+/* ================================================================
+   HISTORY
+================================================================ */
+function addToHistory(result, payload) {
+  sessionClaims.unshift({ result, payload, ts: new Date().toLocaleTimeString() });
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!sessionClaims.length) {
+    list.innerHTML = '<div class="history-empty">No claims yet.</div>';
+    return;
+  }
+  list.innerHTML = sessionClaims.map((c, i) => `
+    <div class="history-item ${c.result.decision}" onclick="showHistoryItem(${i})">
+      <div class="history-top">
+        <span class="history-id">${c.result.claim_id || 'CLM_?'}</span>
+        <span class="history-dec dec-${c.result.decision}">${c.result.decision.replace('_',' ')}</span>
+      </div>
+      <div class="history-meta">
+        ₹${(c.result.approved_amount||0).toLocaleString('en-IN')} approved
+        · ${c.ts}
+      </div>
+    </div>
+  `).join('');
+}
+
+function showHistoryItem(i) {
+  const c = sessionClaims[i];
+  goToStep(3);
+  showResult(c.result);
+}
+
+/* ================================================================
+   STATS
+================================================================ */
+function updateStats(decision) {
+  stats.total++;
+  if (decision === 'APPROVED') stats.approved++;
+  else if (decision === 'REJECTED') stats.rejected++;
+  else stats.review++;
+  document.getElementById('statTotal').textContent = stats.total;
+  document.getElementById('statApproved').textContent = stats.approved;
+  document.getElementById('statRejected').textContent = stats.rejected;
+  document.getElementById('statReview').textContent = stats.review;
+}
+
+/* ================================================================
+   INIT
+================================================================ */
+buildPresets();
+addBillItem('consultation_fee', 1000);
+addBillItem('diagnostic_tests', 500);
+setupTagInput('medInput', 'medTagWrapper', medicines);
+setupTagInput('testInput', 'testTagWrapper', tests);
+
+// Check API health on load
+fetch(`${API}/health`).then(r => {
+  if (r.ok) {
+    document.querySelector('.header-badge').style.background = 'var(--green-dim)';
+    document.querySelector('.header-badge').style.color = 'var(--green)';
+  }
+}).catch(() => {
+  document.querySelector('.header-badge').textContent = '⚠ API Offline';
+  document.querySelector('.header-badge').style.background = 'var(--red-dim)';
+  document.querySelector('.header-badge').style.color = 'var(--red)';
+});
+</script>
+</body>
+</html>
