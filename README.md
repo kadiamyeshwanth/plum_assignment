@@ -1,11 +1,28 @@
 # Plum OPD Claim Adjudication Tool
+
+![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688.svg)
+![Vanilla JS](https://img.shields.io/badge/Frontend-Vanilla_JS-F7DF1E.svg)
+![Status](https://img.shields.io/badge/Status-Deployed-success.svg)
+![Tests](https://img.shields.io/badge/Tests-10%2F10_Passing-brightgreen.svg)
+
 ### AI Automation Engineer Intern Assignment — Submission
 
-An AI-powered full-stack web application that automates the adjudication (approval/rejection) of OPD insurance claims. Processes medical documents, validates against policy terms, and makes intelligent decisions with confidence scoring and clear reasoning.
+An AI-ready full-stack web application that automates the adjudication (approval/rejection) of OPD insurance claims. It processes medical documents, validates them against strict policy terms, and makes intelligent, transparent decisions with confidence scoring.
 
 ---
 
-## Quick Start (2 steps, no dependencies for basic mode)
+## 🚀 Live Demo & Deployed Links
+
+- **Live Application:** [https://kadiamyeshwanth.github.io/plum_assignment/](https://kadiamyeshwanth.github.io/plum_assignment/)
+- **API Documentation (Swagger):** [https://plumassignment-production.up.railway.app/docs](https://plumassignment-production.up.railway.app/docs)
+- **Backend API Base URL:** `https://plumassignment-production.up.railway.app`
+
+*(Note: The live application connects seamlessly to the deployed cloud backend. Feel free to use the 8 pre-loaded test case buttons in the UI to instantly see the adjudication engine in action!)*
+
+---
+
+## ⚡ Quick Start (Local Setup)
 
 ### Option A — Zero-install (stdlib server)
 ```bash
@@ -23,7 +40,7 @@ uvicorn app:app --reload --port 8000
 
 Then open `mvp_frontend/index.html` in your browser.
 
-> 💡 The API status indicator in the top-right corner of the UI will turn **green** when connected.
+> 💡 The API status indicator in the top-right corner of the UI will turn **green** when connected successfully to the backend.
 
 ---
 
