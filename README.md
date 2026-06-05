@@ -93,8 +93,7 @@ plum_intern_assignment/
 ├── docs/
 │   ├── ARCHITECTURE.md     # System architecture + Mermaid diagrams
 │   ├── API.md              # Full API reference
-│   ├── ASSUMPTIONS.md      # All design decisions documented
-│   └── DEMO_SCRIPT.md      # Detailed 5-7 min demo walkthrough
+│   └── ASSUMPTIONS.md      # All design decisions documented
 │
 ├── policy_terms.json        # Insurance policy configuration
 ├── adjudication_rules.md    # Business logic reference
@@ -202,6 +201,5 @@ Key ones:
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System architecture, components, tech decisions |
 | [`docs/API.md`](docs/API.md) | Full API reference with request/response examples |
 | [`docs/ASSUMPTIONS.md`](docs/ASSUMPTIONS.md) | All design decisions and their rationale |
-| [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) | Detailed demo walkthrough script |
 | [`adjudication_rules.md`](adjudication_rules.md) | Business logic reference |
 | [`policy_terms.json`](policy_terms.json) | Policy configuration |
